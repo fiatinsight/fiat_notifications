@@ -1,0 +1,2 @@
+<% # This can't access current_user, so finding the user by notification.user works %>
+You have <%= pluralize(notification.recipient.notifications.shown.count, 'notification') %>
