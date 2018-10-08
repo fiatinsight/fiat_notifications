@@ -1,10 +1,6 @@
 module FiatNotifications
   class SubscriptionsController < ActionController::Base
 
-    def index
-      @notifications = Notification.order("created_at DESC").all
-    end
-
     def update
       @notification = Notification.find(params[:id])
 
@@ -36,14 +32,13 @@ module FiatNotifications
       end
     end
 
-    def destroy
-    end
-
     private
 
-      # Never trust parameters from the scary internet, only allow the white list through.
       def notification_params
-        params.require(:notification).permit(:user_id, :recipient_id, :action, :notifiable_type, :notifiable_id, :hidden)
+        params.require(:notification).permit(
+          # :recipient_type, :recipient_id, :creator_type, :creator_id, :action, :notifiable_type, :notifiable_id,
+          :hidden
+        )
       end
 
   end

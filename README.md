@@ -33,6 +33,12 @@ For example, on a `Comment` class with an author and recipient, you could invoke
 after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned") }, on: :create
 ```
 
+Notifications can be reported to application recipients using the same information. For example, you might write:
+
+```
+<%= i.creator.name %> <%= i.action %> you on <%= link_to "this comment", notification_path(id: i.id), method: :patch %>
+```
+
 ## Development
 
 To build this gem for the first time, run `gem build fiat_notifications.gemspec` from the project folder.

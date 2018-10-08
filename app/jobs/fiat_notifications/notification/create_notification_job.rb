@@ -4,6 +4,7 @@ class FiatNotifications::Notification::CreateNotificationJob < ApplicationJob
 
   def perform(notifiable, creator, recipient, action)
     FiatNotifications::Notification.create(recipient: recipient, creator: creator, action: "mentioned", notifiable: notifiable, action: action)
+    
     # Find @mentioned users and put their emails into an array
     # mentions ||= begin
     #                regex = /@([\w]+)/
