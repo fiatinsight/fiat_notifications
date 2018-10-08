@@ -7,7 +7,7 @@ class CreateFiatNotificationsNotifications < ActiveRecord::Migration[5.2]
       t.integer :creator_id
       t.string :notifiable_type
       t.integer :notifiable_id
-      t.integer :action
+      t.string :action
       t.boolean :hidden
       t.string :token
 

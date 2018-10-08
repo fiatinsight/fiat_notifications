@@ -25,10 +25,12 @@ Install the migrations in your app root folder by running:
     $ rails fiat_notifications:install:migrations
     $ rake db:migrate
 
-Notifications can be invoked from a class within the application. For example, on a `Comment` class you could call:
+Notifications can be invoked from any class within an application. They can be assigned to any other class as a recipient, and they can take any class as a creator. They also accept an action type / verb:
+
+For example, on a `Comment` class with an author and recipient, you could invoke a notification using a delayed job by calling:
 
 ```ruby
-after_commit -> { Notification::CommentMentionJob.set(wait: 5.seconds).perform_later(self) }, on: :create
+after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned") }, on: :create
 ```
 
 ## Development
