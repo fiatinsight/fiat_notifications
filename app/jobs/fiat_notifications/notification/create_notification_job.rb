@@ -5,11 +5,11 @@ class FiatNotifications::Notification::CreateNotificationJob < ApplicationJob
   def perform(notifier, creator, observable, action, notified_type, notified_ids)
 
     # Create a notification in the db, at least...
-    notification = FiatNotifications::Notification.create(notifier: notifier, creator: creator, recipient: recipient, action: action)
+    notification = FiatNotifications::Notification.create(notifier: notifier, creator: creator, observable: observable, action: action)
 
     # Send SMS messages to anyone who should get them
     notified_ids.each do |i|
-      if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: recipient)
+      if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
         twilio_client = Twilio::REST::Client.new
 
         twilio_client.api.account.messages.create(
