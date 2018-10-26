@@ -1,6 +1,6 @@
 # Fiat Notifications
 
-This gem is designed to be used by Fiat Insight developers on Rails projects that need to handle notifications.
+This gem is designed to be used by Fiat Insight developers on Rails projects that need to handle complex notifications. It allows you to offload notification creation to highly configurable background jobs, including email and SMS delivery. It also provides resources for managing flexible, granular notification preferences.
 
 ## Installation
 
@@ -25,23 +25,13 @@ Install the migrations in your app root folder by running:
     $ rails fiat_notifications:install:migrations
     $ rake db:migrate
 
-Notifications can be invoked from any class within an application. They can be assigned to any other class as a recipient, and they can take any class as a creator. They also accept an action type / verb:
+## Postmark / transactional email
 
-For example, on a `Comment` class with an author and recipient, you could invoke a notification using a delayed job by calling:
-
-```ruby
-after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned") }, on: :create
-```
-
-Notifications can be reported to application recipients using the same information. For example, you might write:
-
-```
-<%= i.creator.name %> <%= i.action %> you on <%= link_to "this comment", notification_path(id: i.id), method: :patch %>
-```
+To enable transactional emails through Postmark, set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal in your main app.
 
 ## Twilio / SMS
 
-To enable Twilio usage, create a `config/initializers/twilio.rb` file in your main app.
+To enable sending SMS messages through Twilio, set up the [twilio-ruby](https://github.com/twilio/twilio-ruby) gem as normal in your main app. Make sure to include a `config/initializers/twilio.rb` file in your main app with your account keys:
 
 ```ruby
 Twilio.configure do |config|
@@ -50,7 +40,31 @@ Twilio.configure do |config|
 end
 ```
 
-Then add your Twilio SID and authorization tokens to your secrets.
+## How to use
+
+### Creating notifications
+
+Notifications can be invoked from any class within an application (i.e, the `notifier`). They can be assigned to any other class as a `creator`, and they can accept any class as `observable`. These are all validated, polymorphic fields. Notifications can also accept an action type / verb.
+
+For example, on a `Comment` class with an author and recipient, you could invoke a notification using a delayed job by calling:
+
+```ruby
+after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", nil, nil) }, on: :create
+```
+
+From the database, notifications can be reported to users with the same information. For example, you might write:
+
+```
+<%= i.creator.name %> <%= i.action %> you on <%= link_to "this comment", notification_path(id: i.id), method: :patch %>
+```
+
+### Notification preferences
+
+When creating a notification, you can also pass in a further set of arguments for `notified_type` and `notified_ids`. This pertains to notification preferences, which can be created and stored for any class in your application. For example, in the same example, you could put:
+
+```ruby
+after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", "User", self.attendable.person.eligible_users_to_notify.pluck(:id)) }, on: :create
+```
 
 ## Development
 

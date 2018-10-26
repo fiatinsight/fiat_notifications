@@ -2,16 +2,16 @@ module FiatNotifications
   class Notification < ApplicationRecord
     include Tokenable
 
-    belongs_to :recipient, polymorphic: true
+    belongs_to :notifier, polymorphic: true
     belongs_to :creator, polymorphic: true
-    belongs_to :notifiable, polymorphic: true
+    belongs_to :observable, polymorphic: true
 
-    validates :recipient, presence: true
+    validates :notifier, presence: true
     validates :creator, presence: true
-    validates :notifiable, presence: true
+    validates :observable, presence: true
 
     scope :shown, lambda { where(hidden: [0,nil]) }
 
-    after_commit -> { FiatNotifications::Notification::RelayJob.set(wait: 5.seconds).perform_later(self) }, on: :create
+    # after_commit -> { FiatNotifications::Notification::RelayJob.set(wait: 5.seconds).perform_later(self) }, on: :create
   end
 end
