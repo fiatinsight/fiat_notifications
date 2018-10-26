@@ -39,6 +39,19 @@ Notifications can be reported to application recipients using the same informati
 <%= i.creator.name %> <%= i.action %> you on <%= link_to "this comment", notification_path(id: i.id), method: :patch %>
 ```
 
+## Twilio / SMS
+
+To enable Twilio usage, create a `config/initializers/twilio.rb` file in your main app.
+
+```ruby
+Twilio.configure do |config|
+  config.account_sid = Rails.application.secrets.twilio_account_sid
+  config.auth_token = Rails.application.secrets.twilio_auth_token
+end
+```
+
+Then add your Twilio SID and authorization tokens to your secrets.
+
 ## Development
 
 To build this gem for the first time, run `gem build fiat_notifications.gemspec` from the project folder.

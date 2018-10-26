@@ -2,8 +2,19 @@ class FiatNotifications::Notification::CreateNotificationJob < ApplicationJob
   include ActionView::Helpers::TextHelper
   queue_as :default
 
-  def perform(notifiable, creator, recipient, action)
+  def perform(method, notifiable, creator, recipient, action)
     FiatNotifications::Notification.create(recipient: recipient, creator: creator, action: "mentioned", notifiable: notifiable, action: action)
+
+    @client = Twilio::REST::Client.new Rails.application.secrets.TWILIO_ACCOUNT_SID, Rails.application.secrets.TWILIO_AUTH_TOKEN
+
+    @client.api.account.messages.create(
+      from: '+17032609664',
+      to: '+17032200874',
+      body: 'Hey there!'
+    )
+    # method.each do |i|
+    #   puts "Method #{i}"
+    # end
 
     # Find @mentioned users and put their emails into an array
     # mentions ||= begin
