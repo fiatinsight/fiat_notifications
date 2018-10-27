@@ -2,6 +2,8 @@ module FiatNotifications
   class NotificationPreference < ApplicationRecord
     include Tokenable
 
+    self.table_name = "fi_notification_preferences"
+
     belongs_to :notifiable, polymorphic: true
     belongs_to :noticeable, polymorphic: true
 
