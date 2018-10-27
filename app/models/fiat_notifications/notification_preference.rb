@@ -8,6 +8,7 @@ module FiatNotifications
     belongs_to :noticeable, polymorphic: true
 
     validates :notifiable, presence: true
+    validates :preference_type, presence: true
     # validates :noticeable, presence: true, if: self.noticeable?
 
     enum preference_type: {
