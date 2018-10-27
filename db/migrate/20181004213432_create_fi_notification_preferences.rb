@@ -6,6 +6,9 @@ class CreateFiNotificationPreferences < ActiveRecord::Migration[5.2]
       t.integer :preference_type
       t.string :noticeable_type
       t.integer :noticeable_id
+      t.boolean :email
+      t.boolean :sms
+      t.bollean :push
       t.string :token
 
       t.timestamps
