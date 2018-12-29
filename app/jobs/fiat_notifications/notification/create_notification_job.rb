@@ -1,4 +1,4 @@
-class FiatNotifications::Notification::CreateNotificationJob < ApplicationJob
+class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications::ApplicationJob
   include ActionView::Helpers::TextHelper
   queue_as :default
 
