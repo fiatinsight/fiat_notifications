@@ -24,13 +24,33 @@ Run the migrations from the engine by typing:
 
     $ rake db:migrate
 
+Create an initializer at `config/initializers/fiat_notifications.rb` to set required variables for your implementation:
+
+```ruby
+FiatNotifications.from_email_address = "test@something.com"
+FiatNotifications.email_template_id = "1234567"
+FiatNotifications.from_phone_number = "+12025551234"
+```
+
 ## Postmark / transactional email
 
-To enable transactional emails through Postmark, set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal in your main app.
+To enable transactional emails through Postmark, set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal in your main app. Make sure your Postmark server API token is stored in a `credentials.yml` file as:
+
+```ruby
+postmark_api_token: postmark-token
+```
 
 ## Twilio / SMS
 
-To enable sending SMS messages through Twilio, set up the [twilio-ruby](https://github.com/twilio/twilio-ruby) gem as normal in your main app. Make sure to include a `config/initializers/twilio.rb` file in your main app with your account keys:
+To enable sending SMS messages through Twilio, set up the [twilio-ruby](https://github.com/twilio/twilio-ruby) gem as normal in your main app. Make sure your Twilio API keys are stored in a `credentials.yml` file with the following format:
+
+```ruby
+twilio:
+  auth_token: twilio-auth-token
+  account_sid: twilio-account-sid
+```
+
+Also, make sure to include a `config/initializers/twilio.rb` file in your main app with your account keys:
 
 ```ruby
 Twilio.configure do |config|

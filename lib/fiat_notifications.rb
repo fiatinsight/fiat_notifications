@@ -2,5 +2,7 @@ require "fiat_notifications/engine"
 require 'twilio-ruby'
 
 module FiatNotifications
-  # Your code goes here...
+  mattr_accessor :from_email_address
+  mattr_accessor :email_template_id
+  mattr_accessor :from_phone_number
 end
