@@ -16,8 +16,8 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
             twilio_client = Twilio::REST::Client.new
 
             twilio_client.api.account.messages.create(
-              from: '+17032609664', # This is the phone number for Parish.es
-              # from: FiatNotifications.from_phone_number, # For production
+              # from: '+17032609664', # This is the phone number for Parish.es
+              from: FiatNotifications.from_phone_number, # For production
               # to: '+17032200874', # For testing
               to: "+1#{User.find(i).phone_number}", # For usage
               body: "New notification for #{notified_type.constantize.find(i).email}: #{observable.full_name} was #{notification.action}"
@@ -33,13 +33,13 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
             postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
             postmark_client.deliver_with_template(
             {:from=>FiatNotifications.from_email_address,
-             :to=>User.find(i).email,
+             :to=>notified_type.constantize.find(i).email,
              # :reply_to=>"5dfaecfc07476ccff3b32c80c3ba592d+#{comment.message.id}@inbound.postmarkapp.com",
              :template_id=>FiatNotifications.email_template_id,
              :template_model=>
-              {"commenter_name"=>User.find(creator.id).username,
-               "subject"=>"Test notification subject",
-               "body"=>"Test notification body",
+              {"creator"=>creator,
+               "subject"=>"New notification at #{notification.created_at}",
+               "body"=>"New notification at #{notification.created_at}",
                "url"=>"https://google.com",
                "timestamp"=>notification.created_at}}
             )
