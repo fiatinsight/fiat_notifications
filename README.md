@@ -20,9 +20,8 @@ Or install it yourself as:
 
 ## Setup
 
-Install the migrations in your app root folder by running:
+Run the migrations from the engine by typing:
 
-    $ rails fiat_notifications:install:migrations
     $ rake db:migrate
 
 ## Postmark / transactional email
