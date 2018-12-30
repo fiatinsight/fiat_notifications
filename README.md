@@ -40,6 +40,8 @@ To enable transactional emails through Postmark, set up the [postmark-rails](htt
 postmark_api_token: postmark-token
 ```
 
+Your email template should handle the following fields: `creator`, `subject`, `body`, `url`, and `timestamp`.
+
 ## Twilio / SMS
 
 To enable sending SMS messages through Twilio, set up the [twilio-ruby](https://github.com/twilio/twilio-ruby) gem as normal in your main app. Make sure your Twilio API keys are stored in a `credentials.yml` file with the following format:

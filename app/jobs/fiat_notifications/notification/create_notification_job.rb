@@ -10,7 +10,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
-      if Rails.application.credentials.twilio[:auth_token]
+      if Rails.application.credentials.twilio && Rails.application.credentials.twilio[:auth_token]
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
             twilio_client = Twilio::REST::Client.new
@@ -28,6 +28,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
 
       # Send emails to anyone who should get them
       if Rails.application.credentials.postmark_api_token
+        # TODO: Observable and creator need to be predictably named, probably via a conditional check, here
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
             postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
@@ -38,9 +39,9 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
              :template_id=>FiatNotifications.email_template_id,
              :template_model=>
               {"creator"=>creator,
-               "subject"=>"New notification at #{notification.created_at}",
-               "body"=>"New notification at #{notification.created_at}",
-               "url"=>"https://google.com",
+               "subject"=>"New notification for #{notified_type.constantize.find(i).email} at #{notification.created_at}",
+               "body"=>"",
+               # "url"=>"",
                "timestamp"=>notification.created_at}}
             )
           end
