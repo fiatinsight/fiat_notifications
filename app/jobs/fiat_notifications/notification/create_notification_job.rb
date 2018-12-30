@@ -10,7 +10,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
-      if Rails.application.credentials.twilio_auth_token
+      if Rails.application.credentials.twilio.auth_token
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
             twilio_client = Twilio::REST::Client.new
@@ -19,7 +19,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
               # from: '+17032609664', # This is the phone number for Parish.es
               from: FiatNotifications.from_phone_number, # For production
               # to: '+17032200874', # For testing
-              to: "+1#{User.find(i).phone_number}", # For usage
+              to: "+1#{notified_type.constantize.find(i).phone_number}", # For usage
               body: "New notification for #{notified_type.constantize.find(i).email}: #{observable.full_name} was #{notification.action}"
             )
           end
