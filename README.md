@@ -68,7 +68,7 @@ end
 Notifications can be invoked _from_ any instance of a class within an application, and they can report _about_ any other class instance _to_ any other class instance. New notifications accept nine arguments that are validated to ensure proper handling:
 
 | Argument   |      Question?      | Format |
-|----------|-------------|----:|
+|----------|-------------|:----|
 | `notifier` |  What generated the notification? | Active Record object (polymorphic) |
 | `creator` |    Who created the notification?   | Active Record object (polymorphic) |
 | `observable` | What's being reported on? | Active Record object (polymorphic) |
@@ -78,11 +78,13 @@ Notifications can be invoked _from_ any instance of a class within an applicatio
 | `notifier_name` | What's the `notifier`'s nice name? | String |
 | `creator_name` | What's the `creator`'s nice name? | String |
 | `observable_name` | What's the `observable`'s nice name? | String |
+| `url` | What's the URL to access a record? | String |
+| `message` | What's the full message for this action? | Text |
 
 For example, from a `Comment` class with an associated author and recipient record, you could invoke a notification using a delayed job by calling:
 
 ```ruby
-after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", nil, nil, nil, self.author.username, self.recipient.username) }, on: :create
+after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", nil, nil, nil, self.author.username, self.recipient.username, "https://example.com/comments/#{self.id}", self.body) }, on: :create
 ```
 
 Creating a notification always saves a record on the `fi_notifications` table, which can be reported back to users in your app:
@@ -96,7 +98,7 @@ Creating a notification always saves a record on the `fi_notifications` table, w
 Passing values to the `notified_type` and `notified_ids` arguments allows you to invoke notification preferences, stored on the `fi_notification_preferences` table. These can be created and stored for any class in your application (typically a `User`). For example, in the same example, you could put:
 
 ```ruby
-after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", "User", self.team_members.pluck(:id)) }, on: :create
+after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", "User", self.team_members.pluck(:id), nil, self.author.username, self.recipient.username, "https://example.com/comments/#{self.id}", self.body) }, on: :create
 ```
 
 ## Development

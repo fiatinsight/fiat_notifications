@@ -2,7 +2,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
   include ActionView::Helpers::TextHelper
   queue_as :default
 
-  def perform(notifier, creator, observable, action, notified_type, notified_ids)
+  def perform(notifier, creator, observable, action, notified_type, notified_ids, notifier_name, creator_name, observable_name, url, message)
 
     # Create a notification in the db, at least...
     notification = FiatNotifications::Notification.create(notifier: notifier, creator: creator, observable: observable, action: action)
@@ -39,10 +39,10 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
              # :reply_to=>"5dfaecfc07476ccff3b32c80c3ba592d+#{comment.message.id}@inbound.postmarkapp.com",
              :template_id=>FiatNotifications.email_template_id,
              :template_model=>
-              {"creator"=>creator,
-               "subject"=>"#{creator} #{action} #{notified_type.constantize.find(i).username}",
-               "body"=>"#{notification.created_at}",
-               # "url"=>"",
+              {"creator"=>creator_name,
+               "subject"=>"#{creator_name} #{action} #{notified_type.constantize.find(i).username}",
+               "body"=>"#{simple_format(message)}",
+               "url"=>"#{url}",
                "timestamp"=>notification.created_at}}
             )
           end
