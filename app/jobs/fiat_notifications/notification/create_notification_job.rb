@@ -10,6 +10,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
+      # NOTE: This assumes all users have phone numbers, otherwise it'll break
       if Rails.application.credentials.twilio && Rails.application.credentials.twilio[:auth_token]
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
@@ -39,8 +40,8 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
              :template_id=>FiatNotifications.email_template_id,
              :template_model=>
               {"creator"=>creator,
-               "subject"=>"New notification for #{notified_type.constantize.find(i).email} at #{notification.created_at}",
-               "body"=>"",
+               "subject"=>"#{creator} #{action} #{notified_type.constantize.find(i).username}",
+               "body"=>"#{notification.created_at}",
                # "url"=>"",
                "timestamp"=>notification.created_at}}
             )
