@@ -10,8 +10,8 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
-      # NOTE: This assumes all users have phone numbers, otherwise it'll break
       if Rails.application.credentials.twilio && Rails.application.credentials.twilio[:auth_token]
+        # NOTE: This assumes all users have phone numbers, otherwise it'll break
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
             twilio_client = Twilio::REST::Client.new
@@ -29,7 +29,6 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
 
       # Send emails to anyone who should get them
       if Rails.application.credentials.postmark_api_token
-        # TODO: Observable and creator need to be predictably named, probably via a conditional check, here
         notified_ids.each do |i|
           if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
             postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
