@@ -14,8 +14,10 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     observable_name: nil,
     url: nil,
     sms_body: nil,
+    email_subject: nil,
     email_body: nil,
-    email_template_id: nil
+    email_template_id: nil,
+    reply_to_address: nil
     # Add more optional accepted parameters, here.
   )
 
@@ -34,7 +36,6 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
               twilio_client.api.account.messages.create(
                 from: FiatNotifications.from_phone_number,
                 to: "+1#{notified_type.constantize.find(i).phone_number}",
-                # body: "New notification for #{notified_type.constantize.find(i).email}: #{observable.full_name} was #{notification.action}"
                 body: "#{sms_body}"
               )
             end
@@ -58,12 +59,12 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
               postmark_client.deliver_with_template(
               {:from=>FiatNotifications.from_email_address,
                :to=>notified_type.constantize.find(i).email,
-               # :reply_to=>"5dfaecfc07476ccff3b32c80c3ba592d+#{comment.message.id}@inbound.postmarkapp.com",
+               :reply_to=>reply_to_address,
                :template_id=>template,
                :template_model=>
                # These are all available for your template; if you don't want to use them, that's fine!
                 {"creator"=>creator_name,
-                 "subject"=>"#{creator_name} #{action} #{notified_type.constantize.find(i).username}",
+                 "subject"=>email_subject,
                  "body"=>"#{simple_format(email_body)}",
                  "url"=>"#{url}",
                  "timestamp"=>notification.created_at}}
