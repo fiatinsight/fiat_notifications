@@ -2,27 +2,42 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
   include ActionView::Helpers::TextHelper
   queue_as :default
 
-  def perform(notifier, creator, observable, action, notified_type, notified_ids, notifier_name, creator_name, observable_name, url, message)
+  def perform(
+    notifier,
+    creator,
+    observable, # These are validated
+    action: nil,
+    notified_type: nil,
+    notified_ids: nil,
+    notifier_name: nil,
+    creator_name: nil,
+    observable_name: nil,
+    url: nil,
+    sms_body: nil,
+    email_body: nil,
+    email_template_id: nil
+    # Add more optional accepted parameters, here.
+  )
 
-    # Create a notification in the db, at least...
+    # First, create a notification in the db, at least...
     notification = FiatNotifications::Notification.create(notifier: notifier, creator: creator, observable: observable, action: action)
 
+    # ...then, if it says to notify someone specific
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
       if Rails.application.credentials.twilio && Rails.application.credentials.twilio[:auth_token]
-        # NOTE: This assumes all users have phone numbers, otherwise it'll break
         notified_ids.each do |i|
-          if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
-            twilio_client = Twilio::REST::Client.new
-
-            twilio_client.api.account.messages.create(
-              # from: '+17032609664', # This is the phone number for Parish.es
-              from: FiatNotifications.from_phone_number, # For production
-              # to: '+17032200874', # For testing
-              to: "+1#{notified_type.constantize.find(i).phone_number}", # For usage
-              body: "New notification for #{notified_type.constantize.find(i).email}: #{observable.full_name} was #{notification.action}"
-            )
+          if notified_type.constantize.find(i).phone_number # Make sure they have a phone number
+            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an SMS message
+              twilio_client = Twilio::REST::Client.new
+              twilio_client.api.account.messages.create(
+                from: FiatNotifications.from_phone_number,
+                to: "+1#{notified_type.constantize.find(i).phone_number}",
+                # body: "New notification for #{notified_type.constantize.find(i).email}: #{observable.full_name} was #{notification.action}"
+                body: "#{sms_body}"
+              )
+            end
           end
         end
       end
@@ -30,20 +45,30 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
       # Send emails to anyone who should get them
       if Rails.application.credentials.postmark_api_token
         notified_ids.each do |i|
-          if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable)
-            postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
-            postmark_client.deliver_with_template(
-            {:from=>FiatNotifications.from_email_address,
-             :to=>notified_type.constantize.find(i).email,
-             # :reply_to=>"5dfaecfc07476ccff3b32c80c3ba592d+#{comment.message.id}@inbound.postmarkapp.com",
-             :template_id=>FiatNotifications.email_template_id,
-             :template_model=>
-              {"creator"=>creator_name,
-               "subject"=>"#{creator_name} #{action} #{notified_type.constantize.find(i).username}",
-               "body"=>"#{simple_format(message)}",
-               "url"=>"#{url}",
-               "timestamp"=>notification.created_at}}
-            )
+          if notified_type.constantize.find(i).phone_number # Make sure they have an email address
+            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an email
+
+              if email_template_id
+                template = email_template_id
+              else
+                template = FiatNotifications.email_template_id
+              end
+
+              postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
+              postmark_client.deliver_with_template(
+              {:from=>FiatNotifications.from_email_address,
+               :to=>notified_type.constantize.find(i).email,
+               # :reply_to=>"5dfaecfc07476ccff3b32c80c3ba592d+#{comment.message.id}@inbound.postmarkapp.com",
+               :template_id=>template,
+               :template_model=>
+               # These are all available for your template; if you don't want to use them, that's fine!
+                {"creator"=>creator_name,
+                 "subject"=>"#{creator_name} #{action} #{notified_type.constantize.find(i).username}",
+                 "body"=>"#{simple_format(email_body)}",
+                 "url"=>"#{url}",
+                 "timestamp"=>notification.created_at}}
+              )
+            end
           end
         end
       end

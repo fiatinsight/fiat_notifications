@@ -65,29 +65,47 @@ end
 
 ### Creating notifications
 
-Notifications can be invoked _from_ any instance of a class within an application, and they can report _about_ any other class instance _to_ any other class instance. New notifications accept nine arguments that are validated to ensure proper handling:
-
-| Argument   |      Question?      | Format |
-|----------|-------------|:----|
-| `notifier` |  What generated the notification? | Active Record object (polymorphic) |
-| `creator` |    Who created the notification?   | Active Record object (polymorphic) |
-| `observable` | What's being reported on? | Active Record object (polymorphic) |
-| `action` | What's the verb that describes what happened between the `creator` and the `observable`? | String |
-| `notifiable_type` | What type of thing / person should be notified about this? | String (model name) |
-| `notifiable_ids` | What are the IDs for those things / people under that class? | Array |
-| `notifier_name` | What's the `notifier`'s nice name? | String |
-| `creator_name` | What's the `creator`'s nice name? | String |
-| `observable_name` | What's the `observable`'s nice name? | String |
-| `url` | What's the URL to access a record? | String |
-| `message` | What's the full message for this action? | Text |
-
-For example, from a `Comment` class with an associated author and recipient record, you could invoke a notification using a delayed job by calling:
+Notifications can be invoked _from_ any instance of a class within an application, and they can report _about_ any other class instance _to_ any other class instance. You can create a new notification simply using:
 
 ```ruby
-after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", nil, nil, nil, self.author.username, self.recipient.username, "https://example.com/comments/#{self.id}", self.body) }, on: :create
+FiatNotifications::Notification.create(notifier: notifier, creator: creator, observable: observable, action: action)
 ```
 
-Creating a notification always saves a record on the `fi_notifications` table, which can be reported back to users in your app:
+The preferred way to create a notification is by using the `CreateNotificationJob` class. For example, from a `Comment` class with an associated author and recipient record, you could invoke a notification using a delayed job by calling:
+
+```ruby
+after_commit -> {
+  FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(
+    self,
+    self.author,
+    self.recipient,
+    action: "mentioned",
+    creator_name: self.author.username,
+    observable_name: self.recipient.username,
+    url: "https://example.com/comments/#{self.id}",
+    email_body: self.body
+  )}, on: :create
+```
+
+The `notifier`, `creator`, and `observable` arguments are required. `CreateNotificationJob` accepts a number of optional parameters, too.
+
+| Argument   |      Question?      | Format | Required?
+|----------|-------------|:----|:---|
+| `notifier` |  What generated the notification? | Active Record object (polymorphic) | Yes
+| `creator` |    Who created the notification?   | Active Record object (polymorphic) | Yes
+| `observable` | What's being reported on? | Active Record object (polymorphic) | Yes
+| `action` | What's the verb that describes what happened between the `creator` and the `observable`? | String | Optional
+| `notifiable_type` | What type of thing / person should be notified about this? | String (model name) | Optional
+| `notifiable_ids` | What are the IDs for those things / people under that class? | Array | Optional
+| `notifier_name` | What's the `notifier`'s nice name? | String | Optional
+| `creator_name` | What's the `creator`'s nice name? | String | Optional
+| `observable_name` | What's the `observable`'s nice name? | String | Optional
+| `url` | What's the URL to access a record? | String | Optional
+| `sms_body` | What's the full SMS message? | String | Optional
+| `email_body` | What's the full email message? | String | Optional
+| `email_template_id` | What's the email template ID? | String | Optional
+
+Creating a notification with `CreateNotificationJob` always saves a record on the `fi_notifications` table, which can be reported back to users in your app, e.g.:
 
 ```
 <%= i.creator.name %> <%= i.action %> you on <%= link_to "this comment", notification_path(id: i.id), method: :patch %>
@@ -98,7 +116,20 @@ Creating a notification always saves a record on the `fi_notifications` table, w
 Passing values to the `notified_type` and `notified_ids` arguments allows you to invoke notification preferences, stored on the `fi_notification_preferences` table. These can be created and stored for any class in your application (typically a `User`). For example, in the same example, you could put:
 
 ```ruby
-after_commit -> { FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(self, self.author, self.recipient, "mentioned", "User", self.team_members.pluck(:id), nil, self.author.username, self.recipient.username, "https://example.com/comments/#{self.id}", self.body) }, on: :create
+after_commit -> {
+  FiatNotifications::Notification::CreateNotificationJob.set(wait: 5.seconds).perform_later(
+    self,
+    self.author,
+    self.recipient,
+    action: "mentioned",
+    notified_type: "User",
+    notified_ids: self.team_members.pluck(:id),
+    creator_name: self.author.username,
+    observable_name: self.recipient.username,
+    url: "https://example.com/comments/#{self.id}",
+    sms_body: self.body,
+    email_body: self.body
+  )}, on: :create
 ```
 
 ## Development
