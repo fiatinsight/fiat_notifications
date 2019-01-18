@@ -117,7 +117,7 @@ Creating a notification with `CreateNotificationJob` always saves a new notifica
 
 ### Notification preferences
 
-Passing values to the `notified_type` and `notified_ids` arguments with `CreateNotificationJob` allows you to invoke notification preferences, stored on the `fi_notification_preferences` table. These can be created and stored for any class in your application (typically a `User`) as `notifiable`. Notification preferences also refer to a `noticeable`, which maps to the `observable` argument for `CreateNotificationJob`.
+Passing values to the `notified_type` and `notified_ids` arguments with `CreateNotificationJob` allows you to invoke notification preferences, stored on the `fi_notification_preferences` table. These can be created and stored for any class in your application (typically a `User`) as `notifiable`. Notification preferences also refer to a `noticeable`, which maps to the `observable` argument for `CreateNotificationJob`. And the accept boolean values for `email`, `sms`, and `push`.
 
 Per the example, above, you could put:
 
@@ -138,7 +138,9 @@ after_commit -> {
   )}, on: :create
 ```
 
-This would read notification preferences for any `User` among the relevant `team_members` and executet the Twilio and/or Postmark blocks, depending on which service(s) you've set up. Notified recipients would receive whatever type of output is preferred and stored on their relevant notification preference.
+This would try to locate notification preferences for any `User` among the relevant `team_members` and execute the Twilio and/or Postmark blocks in `CreateNotificationJob`, depending on which service(s) you've set up. Notified recipients would receive whatever type of notifications are indicated on their preferences.
+
+> Note: Push notifications aren't yet controlled in `CreateNotificationJob`. However, future implementations using something like the currently-suppressed `RelayJob` will facilitate this.
 
 ## Development
 
