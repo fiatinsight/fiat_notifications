@@ -82,7 +82,7 @@ They accept the following parameters:
 
 ### Using a job
 
-The preferred way to create a notification is by using the `CreateNotificationJob` class. Not only does this allow for delayed execution, but it also triggers a series of conditional actions based on the arguments passed.
+The preferred way to create a notification is by using the [`CreateNotificationJob`](https://github.com/fiatinsight/fiat_notifications/blob/master/app/jobs/fiat_notifications/notification/create_notification_job.rb) class. Not only does this allow for delayed execution, but it also triggers a series of conditional actions based on the arguments passed.
 
 For example, from a `Comment` class with an associated author and recipient record, you could invoke a notification using a delayed job by calling:
 
