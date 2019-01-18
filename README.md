@@ -25,6 +25,12 @@ FiatNotifications.from_phone_number = "+15555551234"
 
 > Note: Currently, the above variables are all required to be set at least to `nil`
 
+Finally, mount the engine in your `routes.rb` file:
+
+```ruby
+mount FiatNotifications::Engine => "/notifications"
+```
+
 ### Postmark / transactional email
 
 To enable transactional emails through Postmark, install and set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal. Make sure your Postmark server API token is stored in a `credentials.yml` file as:
