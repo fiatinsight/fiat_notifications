@@ -97,7 +97,7 @@ after_commit -> {
 The `notifier`, `creator`, and `observable` arguments are required, as before. `CreateNotificationJob` also accepts a number of optional parameters.
 
 | Argument   |      Question?      | Format
-|----------|-------------|:----|:---|
+|----------|-------------|:----|
 | `action` | What's the verb that describes what happened between the `creator` and the `observable`? | String
 | `notifiable_type` | What type of thing / person should be notified about this? | String (model name)
 | `notifiable_ids` | What are the IDs for those things / people under that class? | Array
