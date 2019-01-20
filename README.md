@@ -1,5 +1,7 @@
 # Fiat Notifications
 
+> Currently installed on [Parish.es](https://github.com/fiatinsight/parish-app) and [Cleveland Mixer](https://github.com/fiatinsight/cleveland-mixer/).
+
 This engine is designed to be used by [@fiatinsight](https://fiatinsight.com) developers on Rails projects that need to handle complex notifications. It encourages offloading notification creation to highly configurable background jobs that produce in-app, SMS, and email output. It also provides resources for managing flexible, granular notification preferences.
 
 ## Getting started
