@@ -9,4 +9,5 @@ module FiatNotifications
   mattr_accessor :twilio_auth_token
   mattr_accessor :twilio_account_sid
   mattr_accessor :from_phone_number
+  mattr_accessor :slack_api_token
 end

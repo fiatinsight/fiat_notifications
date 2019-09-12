@@ -26,6 +26,7 @@ FiatNotifications.email_template_id = "1234567"
 FiatNotifications.twilio_auth_token = "123abc-xyz"
 FiatNotifications.twilio_account_sid = "123abc-xyz"
 FiatNotifications.from_phone_number = "+15555551234"
+FiatNotifications.slack_api_token = "xyz-123abc"
 ```
 
 > Note: Currently, the above variables are all required to be set at least to `nil`

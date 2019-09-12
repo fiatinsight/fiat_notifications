@@ -31,7 +31,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
       if FiatNotifications.twilio_auth_token && FiatNotifications.twilio_account_sid
         notified_ids.each do |i|
           if notified_type.constantize.find(i).phone_number # Make sure they have a phone number
-            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an SMS message
+            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable, sms: 1) # Make sure they *want* to get an SMS message
               twilio_client = Twilio::REST::Client.new
               twilio_client.api.account.messages.create(
                 from: FiatNotifications.from_phone_number,
@@ -47,7 +47,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
       if FiatNotifications.postmark_api_token
         notified_ids.each do |i|
           if notified_type.constantize.find(i).email # Make sure they have an email address
-            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an email
+            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable, email: 1) # Make sure they *want* to get an email
 
               if email_template_id
                 template = email_template_id
@@ -69,6 +69,21 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
                  "url"=>"#{url}",
                  "timestamp"=>notification.created_at}}
               )
+            end
+          end
+        end
+      end
+
+      # Send Slack messages to anyone who should get them
+      if FiatNotifications.slack_api_token
+        notified_ids.each do |i|
+          if notified_type.constantize.find(i).slack_username # Make sure they have a Slack username
+            if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable, slack: 1) # Make sure they *want* to get a Slack message
+
+              client = Slack::Web::Client.new
+              link = "#{url}"
+              client.chat_postMessage(channel: "@#{notified_type.constantize.find(i).slack_username}", text: "*#{email_subject}* #{link}: #{email_body}", as_user: false) # TODO: Sanitize HTML tags from email_body (at least)
+
             end
           end
         end
