@@ -5,13 +5,11 @@ module FiatNotifications
       @notification = Notification.find(params[:id])
 
       if params[:hide]
-        @notification.update_attributes(hidden: 1)
-      elsif params[:show]
-        @notification.update_attributes(hidden: 0)
+        @notification.update(hidden: 1)
       end
 
       respond_to do |format|
-        format.html
+        # format.html
         format.js
       end
     end

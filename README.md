@@ -152,13 +152,13 @@ This would try to locate notification preferences for any `User` among the relev
 
 ### Hiding notifications
 
-To hide a notification, you can pass something like:
+To hide a notification, you can pass:
 
 ```ruby
 link_to fiat_notifications.notification_path(i, hide: true), method: :patch, remote: true
 ```
 
-Using `remote: true` will also attempt to remove the page element tagged with `data-notification-id` and the value of the notification's ID.
+This runs via JavaScript, and will also attempt to remove the page element tagged with `data-notification-id` and with the value of the notification's ID.
 
 ## Development
 

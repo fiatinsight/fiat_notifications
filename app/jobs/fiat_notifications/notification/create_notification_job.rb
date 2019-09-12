@@ -44,7 +44,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
       end
 
       # Send emails to anyone who should get them
-      if Rails.application.credentials.postmark_api_token
+      if FiatNotifications.postmark_api_token
         notified_ids.each do |i|
           if notified_type.constantize.find(i).email # Make sure they have an email address
             if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an email
@@ -55,7 +55,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
                 template = FiatNotifications.email_template_id
               end
 
-              postmark_client = Postmark::ApiClient.new(Rails.application.credentials.postmark_api_token)
+              postmark_client = Postmark::ApiClient.new(FiatNotifications.postmark_api_token)
               postmark_client.deliver_with_template(
               {:from=>FiatNotifications.from_email_address,
                :to=>notified_type.constantize.find(i).email,
