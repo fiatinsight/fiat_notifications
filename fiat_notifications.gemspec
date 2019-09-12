@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
 
-  s.add_dependency "rails", "~> 5.2.1"
+  s.add_dependency "rails", ">= 5.2.1"
   s.add_dependency "twilio-ruby"
   s.add_dependency "postmark-rails"
 

@@ -150,6 +150,16 @@ This would try to locate notification preferences for any `User` among the relev
 
 > Note: Push notifications aren't yet controlled in `CreateNotificationJob`. However, future implementations using something like the currently-suppressed `RelayJob` will facilitate this.
 
+### Hiding notifications
+
+To hide a notification, you can pass something like:
+
+```ruby
+link_to fiat_notifications.notification_path(i, hide: true), method: :patch, remote: true
+```
+
+Using `remote: true` will also attempt to remove the page element tagged with `data-notification-id` and the value of the notification's ID.
+
 ## Development
 
 To build this gem for the first time, run `gem build fiat_notifications.gemspec` from the project folder.
