@@ -28,7 +28,7 @@ class FiatNotifications::Notification::CreateNotificationJob < FiatNotifications
     if notified_type && notified_ids.any?
 
       # Send SMS messages to anyone who should get them
-      if Rails.application.credentials.twilio && Rails.application.credentials.twilio[:auth_token]
+      if FiatNotifications.twilio_auth_token && FiatNotifications.twilio_account_sid
         notified_ids.each do |i|
           if notified_type.constantize.find(i).phone_number # Make sure they have a phone number
             if FiatNotifications::NotificationPreference.find_by(notifiable: notified_type.constantize.find(i), noticeable: observable) # Make sure they *want* to get an SMS message

@@ -19,9 +19,12 @@ Then `bundle` and run the required migrations directly by typing:
 Create an initializer at `config/initializers/fiat_notifications.rb` to set some required variables for your implementation:
 
 ```ruby
+FiatNotifications.postmark_api_token = "123abc-xyz"
 FiatNotifications.from_email_address = "test@email.com"
 FiatNotifications.reply_to_email_address = "abcdefg@inbound.email.com"
 FiatNotifications.email_template_id = "1234567"
+FiatNotifications.twilio_auth_token = "123abc-xyz"
+FiatNotifications.twilio_account_sid = "123abc-xyz"
 FiatNotifications.from_phone_number = "+15555551234"
 ```
 
@@ -35,11 +38,7 @@ mount FiatNotifications::Engine => "/notifications"
 
 ### Postmark / transactional email
 
-To enable transactional emails through Postmark, install and set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal. Make sure your Postmark server API token is stored in a `credentials.yml` file as:
-
-```ruby
-postmark_api_token: postmark-token
-```
+To enable transactional emails through Postmark, install and set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal.
 
 The following keys are made available to use with your email template: `creator`, `subject`, `body`, `url`, and `timestamp`.
 
