@@ -19,10 +19,14 @@ Then `bundle` and run the required migrations directly by typing:
 Create an initializer at `config/initializers/fiat_notifications.rb` to set some required variables for your implementation:
 
 ```ruby
+FiatNotifications.postmark_api_token = "123abc-xyz"
 FiatNotifications.from_email_address = "test@email.com"
 FiatNotifications.reply_to_email_address = "abcdefg@inbound.email.com"
 FiatNotifications.email_template_id = "1234567"
+FiatNotifications.twilio_auth_token = "123abc-xyz"
+FiatNotifications.twilio_account_sid = "123abc-xyz"
 FiatNotifications.from_phone_number = "+15555551234"
+FiatNotifications.slack_api_token = "xyz-123abc"
 ```
 
 > Note: Currently, the above variables are all required to be set at least to `nil`
@@ -35,11 +39,7 @@ mount FiatNotifications::Engine => "/notifications"
 
 ### Postmark / transactional email
 
-To enable transactional emails through Postmark, install and set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal. Make sure your Postmark server API token is stored in a `credentials.yml` file as:
-
-```ruby
-postmark_api_token: postmark-token
-```
+To enable transactional emails through Postmark, install and set up the [postmark-rails](https://github.com/wildbit/postmark-rails) gem as normal.
 
 The following keys are made available to use with your email template: `creator`, `subject`, `body`, `url`, and `timestamp`.
 
@@ -149,6 +149,16 @@ after_commit -> {
 This would try to locate notification preferences for any `User` among the relevant `team_members` and execute the Twilio and/or Postmark blocks in `CreateNotificationJob`, depending on which service(s) you've set up. Notified recipients would receive whatever type of notifications are indicated on their preferences.
 
 > Note: Push notifications aren't yet controlled in `CreateNotificationJob`. However, future implementations using something like the currently-suppressed `RelayJob` will facilitate this.
+
+### Hiding notifications
+
+To hide a notification, you can pass:
+
+```ruby
+link_to fiat_notifications.notification_path(i, hide: true), method: :patch, remote: true
+```
+
+This runs via JavaScript, and will also attempt to remove the page element tagged with `data-notification-id` and with the value of the notification's ID.
 
 ## Development
 
