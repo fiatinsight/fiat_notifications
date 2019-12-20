@@ -160,6 +160,22 @@ link_to fiat_notifications.notification_path(i, hide: true), method: :patch, rem
 
 This runs via JavaScript, and will also attempt to remove the page element tagged with `data-notification-id` and with the value of the notification's ID.
 
+### Marking notifications as viewed
+
+To mark a notification as viewed, you can update it from the relevant controller action of the object it points to. For example, with a link to a message you might say:
+
+```ruby
+= link_to message_path(notification.notifier_id, notification_id: notification.id)
+```
+
+Then in your controller `show` action, run:
+
+```ruby
+if params[:notification_id] && FiatNotifications::Notification.find(params[:notification_id]).present?
+  FiatNotifications::Notification.find(params[:notification_id]).update(viewed: 1)
+end
+```
+
 ## Development
 
 To build this gem for the first time, run `gem build fiat_notifications.gemspec` from the project folder.
