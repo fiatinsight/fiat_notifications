@@ -13,6 +13,7 @@ module FiatNotifications
     validates :observable, presence: true
 
     scope :shown, lambda { where(hidden: [0,nil]) }
+    scope :seen, lambda { where(viewed: 1) }
 
     # after_commit -> { FiatNotifications::Notification::RelayJob.set(wait: 5.seconds).perform_later(self) }, on: :create
   end
